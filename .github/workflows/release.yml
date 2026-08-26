@@ -1,0 +1,31 @@
+# BEFORE FIRST USE: configure a PyPI Trusted Publisher for this repo.
+# Go to https://pypi.org/manage/account/publishing/ and add:
+#   owner/repo: kimfrellsen/aiofortiosapi
+#   workflow: release.yml
+#   environment: release
+# No API token needs to be stored — OIDC handles auth.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  id-token: write  # required for OIDC trusted publishing
+  contents: read
+
+jobs:
+  build-and-publish:
+    name: Build & publish to PyPI
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build
+      - run: python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1

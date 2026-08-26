@@ -1,0 +1,22 @@
+{
+  "http_method": "GET",
+  "results": {
+    "cpu": [{"current": 0}],
+    "mem": [{"current": 34}],
+    "session": [{"current": 279}],
+    "session6": [{"current": 57}],
+    "setuprate": [{"current": 7}],
+    "setuprate6": [{"current": 0}],
+    "disk": [{"current": 2}],
+    "npu_session": [{"current": 6}],
+    "npu_session6": [{"current": 26}]
+  },
+  "vdom": "root",
+  "path": "system",
+  "name": "resource",
+  "action": "usage",
+  "status": "success",
+  "serial": "FGT91GTK23005712",
+  "version": "v8.0.1",
+  "build": 243
+}

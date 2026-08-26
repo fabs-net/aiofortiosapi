@@ -1,0 +1,22 @@
+{
+  "http_method": "GET",
+  "results": {
+    "Hostname": "homelab-fw",
+    "Version": "v7.6.1",
+    "Serial-Number": "FGT60FXXXXXXXX",
+    "Model-Name": "FortiGate-60F",
+    "BIOS-version": "07000003",
+    "Branch-point": "2571",
+    "Release-Version-Information": "GA",
+    "Current_Time": "Mon Jun 24 00:00:00 2026",
+    "Daylight-Saving-Time": "No",
+    "Time-Zone": "(GMT+1:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna."
+  },
+  "vdom": "root",
+  "path": "system",
+  "name": "status",
+  "status": "success",
+  "serial": "FGT60FXXXXXXXX",
+  "version": "v7.6.1",
+  "build": 2571
+}

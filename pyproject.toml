@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aiofortiosapi"
+dynamic = ["version"]
+description = "Async FortiOS REST API client for Home Assistant"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Kim", email = "kim@frellsen.se" }]
+requires-python = ">=3.12"
+dependencies = ["aiohttp>=3.9"]
+keywords = ["fortios", "fortigate", "fortinet", "home-assistant", "asyncio", "api-client"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Networking :: Monitoring",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/kimfrellsen/aiofortiosapi"
+Repository = "https://github.com/kimfrellsen/aiofortiosapi"
+Changelog = "https://github.com/kimfrellsen/aiofortiosapi/blob/main/CHANGELOG.md"
+Issues = "https://github.com/kimfrellsen/aiofortiosapi/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "aresponses>=3",
+    "pytest-cov>=5",
+]
+
+[tool.hatch.version]
+path = "src/aiofortiosapi/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aiofortiosapi"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = "--cov=src/aiofortiosapi --cov-report=term-missing"
+
+# ---------------------------------------------------------------------------
+# ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 99
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM"]
+ignore = ["SIM102"]  # nested if acceptable in parse code
+
+[tool.ruff.lint.isort]
+known-first-party = ["aiofortiosapi"]
+
+# ---------------------------------------------------------------------------
+# mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]

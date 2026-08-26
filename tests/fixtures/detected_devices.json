@@ -1,0 +1,31 @@
+{
+  "http_method": "GET",
+  "results": [
+    {
+      "mac": "aa:bb:cc:dd:ee:01",
+      "hostname": "laptop-alice",
+      "ipv4_address": "192.168.1.10",
+      "os_name": "Windows 11",
+      "interface": "internal",
+      "last_seen": 1750000000,
+      "is_online": true
+    },
+    {
+      "mac": "aa:bb:cc:dd:ee:02",
+      "hostname": "phone-bob",
+      "ipv4_address": "192.168.1.11",
+      "os_name": "Android",
+      "interface": "wifi",
+      "last_seen": 1749999900,
+      "is_online": false
+    }
+  ],
+  "vdom": "root",
+  "path": "user",
+  "name": "device",
+  "action": "query",
+  "status": "success",
+  "serial": "FGT60FXXXXXXXX",
+  "version": "v7.6.1",
+  "build": 2571
+}
