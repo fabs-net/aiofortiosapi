@@ -1,0 +1,10 @@
+# Copy this file to config.yaml and fill in your FortiGate details.
+# The token is a FortiOS REST API admin token (System -> Administrators ->
+# REST API Admin). It is shown only once when generated.
+
+host: "192.168.1.1"     # IP or hostname of the FortiGate
+port: 443               # HTTPS port (default 443)
+token: "YOUR-API-TOKEN"
+vdom: "root"            # Virtual domain; omit for none
+verify_ssl: false       # Set true only if you use a trusted certificate
+timeout: 10             # Request timeout in seconds
