@@ -45,3 +45,7 @@ pip-delete-this-directory.txt
 
 # Ruff
 .ruff_cache/
+
+# Local dev environment (never commit FortiGate credentials or scratch scripts)
+.env
+dev-scripts/

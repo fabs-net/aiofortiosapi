@@ -53,6 +53,9 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "--cov=src/aiofortiosapi --cov-report=term-missing"
+markers = [
+    "live: hits a real FortiGate; requires FGT_HOST/FGT_TOKEN env vars (CI never sets them, so these self-skip)",
+]
 
 # ---------------------------------------------------------------------------
 # ruff
