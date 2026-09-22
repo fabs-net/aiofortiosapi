@@ -8,6 +8,7 @@ For local runs the gitignored ``.env`` at the repo root is honoured:
 
     FGT_HOST=192.168.1.1
     FGT_TOKEN=<read-only REST API token>
+    FGT_PORT=8443              # optional, custom admin HTTPS port (default 443)
     FGT_VDOM=root              # optional
     FGT_VERIFY_SSL=0           # optional, 1 to verify TLS certs
 
@@ -24,6 +25,7 @@ import aiohttp
 import pytest
 
 from aiofortiosapi import FortiOSClient
+from aiofortiosapi.const import DEFAULT_PORT
 
 
 def _load_dotenv() -> None:
@@ -45,6 +47,13 @@ FGT_HOST = os.environ.get("FGT_HOST")
 FGT_TOKEN = os.environ.get("FGT_TOKEN")
 
 
+def _env_port() -> int:
+    try:
+        return int(os.environ.get("FGT_PORT", ""))
+    except ValueError:
+        return DEFAULT_PORT
+
+
 @pytest.fixture
 async def live_client() -> AsyncIterator[FortiOSClient]:
     """A FortiOSClient aimed at the real FortiGate described by the env."""
@@ -55,6 +64,8 @@ async def live_client() -> AsyncIterator[FortiOSClient]:
             host=FGT_HOST,
             token=FGT_TOKEN,
             session=session,
-            verify_ssl=os.environ.get("FGT_VERIFY_SSL", "0") in ("1", "true", "yes"),
+            port=_env_port(),
+            verify_ssl=os.environ.get("FGT_VERIFY_SSL", "0")
+            in ("1", "true", "yes"),
             vdom=os.environ.get("FGT_VDOM") or None,
         )
