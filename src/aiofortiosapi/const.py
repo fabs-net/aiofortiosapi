@@ -32,6 +32,11 @@ EP_SDWAN_HEALTH_CHECK = f"{API_BASE}/monitor/virtual-wan/health-check"
 # Per-interface link state, addressing and traffic counters (long-standing).
 EP_INTERFACES = f"{API_BASE}/monitor/system/interface"
 
+# Interface roles (wan/lan/dmz/…). The monitor endpoint above does not
+# report the configured role, so WAN classification needs this read-only
+# CMDB *select*. CMDB writes remain out of scope for this library.
+EP_CMDB_INTERFACES = f"{API_BASE}/cmdb/system/interface"
+
 # Future endpoints (add intentionally, verify paths per target version):
 #   monitor/vpn/ipsec          — IPsec/VPN tunnel state
 #   monitor/system/interface   — per-interface traffic stats

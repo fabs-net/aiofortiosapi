@@ -1,0 +1,159 @@
+{
+  "action": "",
+  "build": 245,
+  "http_method": "GET",
+  "http_status": 200,
+  "limit_reached": false,
+  "matched_count": 20,
+  "name": "interface",
+  "next_idx": 20,
+  "path": "system",
+  "results": [
+    {
+      "mode": "static",
+      "name": "Dialup-Test",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "GDL-IPsec",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "HUB1-VPN1",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "a",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "b",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "dmz",
+      "role": "dmz",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "fortilink",
+      "role": "undefined",
+      "type": "aggregate",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal",
+      "role": "lan",
+      "type": "hard-switch",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal1",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal2",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal3",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal4",
+      "role": "lan",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "internal5",
+      "role": "lan",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "l2t.root",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "pppoe",
+      "name": "modem",
+      "role": "undefined",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "naf.root",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "ssl.root",
+      "role": "undefined",
+      "type": "tunnel",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "vxcvsv",
+      "role": "lan",
+      "type": "vlan",
+      "vdom": "root"
+    },
+    {
+      "mode": "static",
+      "name": "wan1",
+      "role": "wan",
+      "type": "physical",
+      "vdom": "root"
+    },
+    {
+      "mode": "dhcp",
+      "name": "wan2",
+      "role": "wan",
+      "type": "physical",
+      "vdom": "root"
+    }
+  ],
+  "revision": "7da936573a530f413564e000ae4bb6fd",
+  "serial": "FGT60FXXXXXXXXX",
+  "size": 20,
+  "status": "success",
+  "vdom": "root",
+  "version": "v8.0.1"
+}

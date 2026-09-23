@@ -28,6 +28,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `FortiOSClient.get_interfaces()` — per-interface link state, addressing
   and traffic counters from `monitor/system/interface`, parsed into
   `InterfaceStatus` (dict envelope, sorted by name).
+- `FortiOSClient.get_interface_roles()` — configured interface roles
+  (`wan`/`lan`/`dmz`/…) via a read-only CMDB select of
+  `cmdb/system/interface`; the monitor endpoints do not expose roles, so
+  this enables correct WAN classification on boxes where any port can
+  carry the WAN role. CMDB writes remain out of scope.
 - `parse_fortios_version()` / `VersionInfo` — dependency-free parsing of
   FortiOS version strings (`v8.0.1`, `v7.6.7 build3704 (M)`, …) with
   tuple-comparable release info.

@@ -61,6 +61,10 @@ async def main() -> None:
         for iface in await client.get_interfaces():
             if iface.link:
                 print(iface.name, iface.ip, f"{iface.speed_mbps:.0f} Mbps")
+
+        roles = await client.get_interface_roles()
+        wan_ports = [i for i in await client.get_interfaces() if roles.get(i.name) == "wan"]
+        print("WAN ports:", [i.name for i in wan_ports])
     except FortiOSAuthenticationError:
         print("Bad token — re-enter credentials")
     except FortiOSConnectionError:
@@ -107,6 +111,10 @@ client = FortiOSClient(..., device_online_threshold=600)
   `sla_met` flag that can legitimately diverge from the link status.
 - `get_interfaces()` — per-interface link state, addressing and traffic
   counters.
+- `get_interface_roles()` — configured interface roles (`wan`/`lan`/`dmz`/…)
+  via a read-only CMDB select; the monitor endpoints do not expose roles,
+  so this is how callers classify WAN ports on boxes where any port can be
+  assigned the WAN role.
 - `parse_fortios_version()` — dependency-free version parsing for range checks.
 - A generic `get(path)` for any other endpoint that returns the raw JSON envelope.
 - **No** config-write, CMDB, file upload, SSH fallback, or CLI helpers.

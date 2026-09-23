@@ -14,6 +14,7 @@ from .const import (
     DEFAULT_ONLINE_THRESHOLD,
     DEFAULT_PORT,
     DEFAULT_TIMEOUT,
+    EP_CMDB_INTERFACES,
     EP_DETECTED_DEVICES,
     EP_FIRMWARE,
     EP_INTERFACES,
@@ -236,6 +237,29 @@ class FortiOSClient:
         """Return link state and traffic counters for every interface."""
         raw = await self._request("GET", EP_INTERFACES)
         return InterfaceStatus.list_from_api(raw)
+
+    async def get_interface_roles(self) -> dict[str, str]:
+        """Return the configured role per interface (read-only CMDB select).
+
+        Maps interface name to its role (``"wan"``, ``"lan"``, ``"dmz"``, …).
+        FortiOS reports ``"undefined"`` for unset roles; entries without a
+        role key map to ``""``. The monitor endpoints do not expose roles,
+        which is why this CMDB read exists.
+        """
+        raw = await self._request("GET", EP_CMDB_INTERFACES)
+        results: Any = raw.get("results")
+        if not isinstance(results, list):
+            return {}
+        roles: dict[str, str] = {}
+        for entry in results:
+            if not isinstance(entry, dict):
+                continue
+            name = entry.get("name")
+            role = entry.get("role")
+            if not isinstance(name, str):
+                continue
+            roles[name] = role if isinstance(role, str) else ""
+        return roles
 
     async def async_validate(self) -> SystemStatus:
         """Validate credentials cheaply by calling get_system_status.

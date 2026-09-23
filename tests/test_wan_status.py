@@ -11,7 +11,11 @@ from aiofortiosapi import (
     SdwanHealthCheck,
     SdwanHealthCheckMember,
 )
-from aiofortiosapi.const import EP_INTERFACES, EP_SDWAN_HEALTH_CHECK
+from aiofortiosapi.const import (
+    EP_CMDB_INTERFACES,
+    EP_INTERFACES,
+    EP_SDWAN_HEALTH_CHECK,
+)
 
 from .conftest import FAKE_HOST, json_response, load_fixture, make_client
 
@@ -141,6 +145,62 @@ async def test_wan_status_404_raises_not_found(aresponses: ResponsesMockServer) 
         client = make_client(session)
         try:
             await client.get_wan_status()
+        except FortiOSNotFoundError:
+            pass
+        else:
+            raise AssertionError("expected FortiOSNotFoundError")
+
+
+async def test_get_interface_roles_real_shape(aresponses: ResponsesMockServer) -> None:
+    """Parse the sanitized CMDB capture from a real v8.0.1 FortiGate."""
+    aresponses.add(
+        FAKE_HOST,
+        f"/{EP_CMDB_INTERFACES}",
+        "GET",
+        json_response(load_fixture("v8_0/system_interface_cmdb.json")),
+    )
+    async with aiohttp.ClientSession() as session:
+        roles = await make_client(session).get_interface_roles()
+
+    assert len(roles) == 20
+    assert roles["wan1"] == "wan"
+    assert roles["wan2"] == "wan"
+    assert roles["dmz"] == "dmz"
+    assert roles["internal"] == "lan"
+    assert "virtual-wan-link" not in roles  # the SD-WAN zone is not a cmdb interface
+
+
+async def test_interface_roles_defensive(aresponses: ResponsesMockServer) -> None:
+    body = {
+        "results": [
+            {"name": "p1"},  # no role key -> ""
+            {"name": "p2", "role": 7},  # non-string role -> ""
+            "junk",  # non-dict entry -> skipped
+            {"name": None, "role": "wan"},  # non-string name -> skipped
+            {"name": "wan9", "role": "wan"},
+        ]
+    }
+    aresponses.add(FAKE_HOST, f"/{EP_CMDB_INTERFACES}", "GET", json_response(body))
+    async with aiohttp.ClientSession() as session:
+        roles = await make_client(session).get_interface_roles()
+    assert roles == {"p1": "", "p2": "", "wan9": "wan"}
+
+
+async def test_interface_roles_non_list_results(aresponses: ResponsesMockServer) -> None:
+    aresponses.add(FAKE_HOST, f"/{EP_CMDB_INTERFACES}", "GET", json_response({"results": {}}))
+    async with aiohttp.ClientSession() as session:
+        roles = await make_client(session).get_interface_roles()
+    assert roles == {}
+
+
+async def test_interface_roles_404_raises_not_found(
+    aresponses: ResponsesMockServer,
+) -> None:
+    aresponses.add(FAKE_HOST, f"/{EP_CMDB_INTERFACES}", "GET", aresponses.Response(status=404))
+    async with aiohttp.ClientSession() as session:
+        client = make_client(session)
+        try:
+            await client.get_interface_roles()
         except FortiOSNotFoundError:
             pass
         else:
