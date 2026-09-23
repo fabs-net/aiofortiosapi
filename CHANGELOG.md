@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   parsed into `LicenseStatus` / `FortiGuardConnection` / `FortiCareRegistration`
   / `LicenseFeature` (derived `is_licensed` covers `licensed` and
   `free_license`; bundled licenses without `entitlement` tolerated).
+- `FortiCareSupport` — support level/status/expiry parsed from the FortiCare
+  `support` object, with safe defaults when no contract is attached (`{}`).
 - `parse_fortios_version()` / `VersionInfo` — dependency-free parsing of
   FortiOS version strings (`v8.0.1`, `v7.6.7 build3704 (M)`, …) with
   tuple-comparable release info.
