@@ -7,6 +7,7 @@ from aresponses import ResponsesMockServer
 
 from aiofortiosapi import (
     FortiCareRegistration,
+    FortiCareSupport,
     FortiGuardConnection,
     FortiOSNotFoundError,
     LicenseStatus,
@@ -42,6 +43,8 @@ async def test_get_license_status_real_shape(aresponses: ResponsesMockServer) ->
     assert status.forticare.status == "registered"
     assert status.forticare.registration_status == "registered"
     assert status.forticare.account == "user@example.com"
+    # No support contract on this unit: empty support object -> safe defaults
+    assert status.forticare.support == FortiCareSupport(level="", status="", expiry=0)
 
     # FortiGuard connectivity
     assert isinstance(status.fortiguard, FortiGuardConnection)
@@ -105,6 +108,43 @@ def test_parse_fortiguard_non_dict_entry() -> None:
 def test_parse_skips_non_dict_feature_entries() -> None:
     status = LicenseStatus.from_api({"results": {"ips": {}, "junk": "scalar"}})
     assert [f.name for f in status.features] == ["ips"]
+
+
+def test_forticare_support_populated() -> None:
+    raw = {
+        "results": {
+            "forticare": {
+                "status": "registered",
+                "support": {
+                    "support_level": "24x7",
+                    "status": "active",
+                    "expiry": 1893456000,
+                },
+            }
+        }
+    }
+    support = LicenseStatus.from_api(raw).forticare.support
+    assert support == FortiCareSupport(level="24x7", status="active", expiry=1893456000)
+
+
+def test_forticare_support_alternate_keys_and_string_date() -> None:
+    raw = {
+        "results": {
+            "forticare": {
+                "support": {"level": "8x5", "support_status": "active", "expiration": "2027-01-01"}
+            }
+        }
+    }
+    support = LicenseStatus.from_api(raw).forticare.support
+    assert support.level == "8x5"
+    assert support.status == "active"
+    assert support.expiry == 0  # non-numeric tolerated
+
+
+def test_forticare_support_non_dict_entry() -> None:
+    raw = {"results": {"forticare": {"status": "registered", "support": None}}}
+    support = LicenseStatus.from_api(raw).forticare.support
+    assert support == FortiCareSupport(level="", status="", expiry=0)
 
 
 async def test_license_status_404_raises_not_found(

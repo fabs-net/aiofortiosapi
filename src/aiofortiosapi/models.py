@@ -261,6 +261,32 @@ class FortiGuardConnection:
 
 
 @dataclass(frozen=True, slots=True)
+class FortiCareSupport:
+    """Support entitlement details from license/status.
+
+    Empty values mean no support contract is attached — on such units the
+    ``support`` object is ``{}``.  Key names vary across firmware; common
+    variants are tried and unrecognized values default safely.  The
+    populated-case key variants are unverified against real hardware (only
+    the empty case is); parsing stays defensive on purpose.
+    """
+
+    level: str  # e.g. "8x5" / "24x7"
+    status: str  # e.g. "active"
+    expiry: int  # unix timestamp; 0 when unknown or non-numeric
+
+    @classmethod
+    def from_api(cls, entry: Any) -> FortiCareSupport:
+        if not isinstance(entry, dict):
+            entry = {}
+        return cls(
+            level=_as_str(entry.get("support_level") or entry.get("level")),
+            status=_as_str(entry.get("status") or entry.get("support_status")),
+            expiry=_to_int(entry.get("expiry") or entry.get("expiration")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class FortiCareRegistration:
     """FortiCare registration state (from license/status)."""
 
@@ -268,6 +294,7 @@ class FortiCareRegistration:
     registration_status: str  # same value via a second field on some firmware
     account: str  # registered account email
     company: str
+    support: FortiCareSupport
 
     @classmethod
     def from_api(cls, entry: Any) -> FortiCareRegistration:
@@ -278,6 +305,7 @@ class FortiCareRegistration:
             registration_status=_as_str(entry.get("registration_status")),
             account=_as_str(entry.get("account")),
             company=_as_str(entry.get("company")),
+            support=FortiCareSupport.from_api(entry.get("support")),
         )
 
 

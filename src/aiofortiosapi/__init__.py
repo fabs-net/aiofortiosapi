@@ -12,6 +12,7 @@ from .exceptions import (
 from .models import (
     DetectedDevice,
     FortiCareRegistration,
+    FortiCareSupport,
     FortiGuardConnection,
     LicenseFeature,
     LicenseStatus,
@@ -38,6 +39,7 @@ __all__ = [
     "LicenseStatus",
     "FortiGuardConnection",
     "FortiCareRegistration",
+    "FortiCareSupport",
     # versions
     "VersionInfo",
     "parse_fortios_version",
