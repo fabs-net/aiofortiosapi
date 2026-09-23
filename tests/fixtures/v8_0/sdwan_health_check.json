@@ -1,0 +1,61 @@
+{
+  "build": 245,
+  "http_method": "GET",
+  "name": "health-check",
+  "path": "virtual-wan",
+  "results": {
+    "Default_DNS": {
+      "wan1": {
+        "jitter": 2.5227997303009033,
+        "latency": 13.35556697845459,
+        "packet_loss": 0.0,
+        "packet_received": 238388,
+        "packet_sent": 238614,
+        "rx_bandwidth": 213688,
+        "session": 12,
+        "sla_targets_met": [
+          1
+        ],
+        "state_changed": 1789951241,
+        "status": "up",
+        "tx_bandwidth": 7543
+      }
+    },
+    "Default_FortiGuard": {
+      "wan1": {
+        "jitter": 5.216570854187012,
+        "latency": 667.177001953125,
+        "packet_loss": 50.0,
+        "packet_received": 1012,
+        "packet_sent": 2025,
+        "rx_bandwidth": 213688,
+        "session": 12,
+        "sla_targets_met": [],
+        "state_changed": 1789951241,
+        "status": "up",
+        "tx_bandwidth": 7543
+      }
+    },
+    "Default_Gmail": {
+      "wan1": {
+        "jitter": 2.084933280944824,
+        "latency": 13.25,
+        "packet_loss": 0.0,
+        "packet_received": 238367,
+        "packet_sent": 238584,
+        "rx_bandwidth": 213688,
+        "session": 12,
+        "sla_targets_met": [
+          1
+        ],
+        "state_changed": 1789951241,
+        "status": "up",
+        "tx_bandwidth": 7543
+      }
+    }
+  },
+  "serial": "FGT60FXXXXXXXXX",
+  "status": "success",
+  "vdom": "root",
+  "version": "v8.0.1"
+}
