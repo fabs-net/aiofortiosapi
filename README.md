@@ -104,6 +104,39 @@ is a directory node that API tokens cannot read (403) — the data lives at
 `monitor/license/status`. On 7.4/7.6 this path is unverified; probe a device
 before relying on it there.
 
+## Testing
+
+CI runs the unit suite with mocked HTTP responses (`aresponses`) — no
+FortiGate required.
+
+Fixtures under `tests/fixtures/v8_0/` are sanitized captures from real
+hardware (FortiOS v8.0.1), so unit tests exercise actual firmware response
+shapes instead of invented JSON. Sensitive values (serial, account, company,
+public IPs, server addresses) are replaced; capture more firmware versions
+by pointing a capture script at a device and adding a new version directory.
+
+### Live tests (optional, opt-in)
+
+`tests/live/` runs selected tests against a real FortiGate. They self-skip
+unless credentials are present in the environment or a gitignored `.env`
+at the repo root:
+
+```
+FGT_HOST=192.168.1.1
+FGT_TOKEN=<read-only REST API token>
+FGT_PORT=443      # optional, custom admin HTTPS port
+FGT_VDOM=root     # optional
+FGT_VERIFY_SSL=0  # optional, 1 to verify TLS certs
+```
+
+Run with:
+
+```bash
+pytest -m live
+```
+
+CI never sets these variables, so live tests never run there.
+
 ## Exception hierarchy
 
 | Exception | When raised | HA mapping |
