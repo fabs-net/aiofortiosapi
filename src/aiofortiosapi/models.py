@@ -217,6 +217,21 @@ class LicenseFeature:
     used: int  # quota usage (vdom, sms); 0 otherwise
     max: int  # quota limit (vdom, sms); 0 otherwise
 
+    @property
+    def license_kind(self) -> str:
+        """Derive the entitlement kind from status and entitlement.
+
+        Heuristic (derived, not API-reported): ``free_license`` → "free";
+        ``licensed`` with an ``entitlement`` → "paid"; ``licensed`` without
+        → "bundled" (infrastructure databases every unit includes);
+        anything else → "none".
+        """
+        if self.status == "free_license":
+            return "free"
+        if self.status == "licensed":
+            return "paid" if self.entitlement else "bundled"
+        return "none"
+
     @classmethod
     def _from_entry(cls, name: str, entry: dict[str, Any]) -> LicenseFeature:
         status = _as_str(entry.get("status"))

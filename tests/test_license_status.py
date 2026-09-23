@@ -70,6 +70,12 @@ async def test_get_license_status_real_shape(aresponses: ResponsesMockServer) ->
     # free_license counts as functional
     assert _feature(status, "forticloud_logging").is_licensed is True
 
+    # license_kind derivation
+    assert _feature(status, "ips").license_kind == "none"
+    assert _feature(status, "geoip_db").license_kind == "bundled"
+    assert _feature(status, "forticloud_logging").license_kind == "free"
+    assert _feature(status, "forticloud_sandbox").license_kind == "free"
+
     # Quota entry (platform)
     vdom = _feature(status, "vdom")
     assert vdom.kind == "platform"
@@ -79,6 +85,19 @@ async def test_get_license_status_real_shape(aresponses: ResponsesMockServer) ->
     ot = _feature(status, "ot_detection")
     assert ot.status == ""
     assert ot.is_licensed is False
+    assert ot.license_kind == "none"
+
+
+def test_license_kind_paid_when_entitlement_present() -> None:
+    raw = {"results": {"ips": {"status": "licensed", "entitlement": "NIDS"}}}
+    feature = LicenseStatus.from_api(raw).features[0]
+    assert feature.license_kind == "paid"
+    assert feature.is_licensed is True
+
+
+def test_license_kind_absent_status_is_none() -> None:
+    feature = LicenseStatus.from_api({"results": {"ot_detection": {}}}).features[0]
+    assert feature.license_kind == "none"
 
 
 def test_parse_empty_results() -> None:
