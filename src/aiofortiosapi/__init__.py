@@ -9,7 +9,16 @@ from .exceptions import (
     FortiOSNotFoundError,
     FortiOSResponseError,
 )
-from .models import DetectedDevice, ResourceUsage, SystemStatus
+from .models import (
+    DetectedDevice,
+    FortiCareRegistration,
+    FortiGuardConnection,
+    LicenseFeature,
+    LicenseStatus,
+    ResourceUsage,
+    SystemStatus,
+)
+from .versions import VersionInfo, parse_fortios_version
 
 __version__ = "0.1.0"
 
@@ -25,6 +34,13 @@ __all__ = [
     "SystemStatus",
     "ResourceUsage",
     "DetectedDevice",
+    "LicenseFeature",
+    "LicenseStatus",
+    "FortiGuardConnection",
+    "FortiCareRegistration",
+    # versions
+    "VersionInfo",
+    "parse_fortios_version",
     # constants
     "DEFAULT_ONLINE_THRESHOLD",
     "__version__",

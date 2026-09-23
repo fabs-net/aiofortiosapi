@@ -15,6 +15,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_TIMEOUT,
     EP_DETECTED_DEVICES,
+    EP_LICENSE_STATUS,
     EP_RESOURCE_USAGE,
     EP_SYSTEM_STATUS,
 )
@@ -24,7 +25,12 @@ from .exceptions import (
     FortiOSNotFoundError,
     FortiOSResponseError,
 )
-from .models import DetectedDevice, ResourceUsage, SystemStatus
+from .models import (
+    DetectedDevice,
+    LicenseStatus,
+    ResourceUsage,
+    SystemStatus,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -189,6 +195,16 @@ class FortiOSClient:
             now=time.time(),
             online_threshold=self._device_online_threshold,
         )
+
+    async def get_license_status(self) -> LicenseStatus:
+        """Return FortiCare/FortiGuard registration and per-feature license states.
+
+        ``features`` covers every entitlement entry (antivirus, ips, appctrl,
+        cloud services, quotas, …) with ``is_licensed`` derived per feature;
+        ``fortiguard`` and ``forticare`` are parsed into dedicated models.
+        """
+        raw = await self._request("GET", EP_LICENSE_STATUS)
+        return LicenseStatus.from_api(raw)
 
     async def async_validate(self) -> SystemStatus:
         """Validate credentials cheaply by calling get_system_status.

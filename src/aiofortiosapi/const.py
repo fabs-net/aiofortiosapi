@@ -15,6 +15,12 @@ EP_RESOURCE_USAGE = f"{API_BASE}/monitor/system/resource/usage"
 # 7.0+: older firmware used monitor/user/device/select
 EP_DETECTED_DEVICES = f"{API_BASE}/monitor/user/device/query"
 
+# FortiOS 8.x: /monitor/license itself is a directory node that API tokens
+# cannot read (403); the data lives one level deeper at license/status.
+# Verified on v8.0.1; path unverified on 7.4/7.6 — probe with
+# dev-scripts/version_check.py before relying on it there.
+EP_LICENSE_STATUS = f"{API_BASE}/monitor/license/status"
+
 # Future endpoints (add intentionally, verify paths per target version):
 #   monitor/vpn/ipsec          — IPsec/VPN tunnel state
 #   monitor/system/interface   — per-interface traffic stats

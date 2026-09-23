@@ -38,6 +38,13 @@ async def main() -> None:
         devices = await client.get_detected_devices()
         for d in devices:
             print(d.mac, d.hostname, d.ip, "online" if d.is_online else "offline")
+
+        licenses = await client.get_license_status()
+        print("FortiCare:", licenses.forticare.status)
+        print("FortiGuard:", "connected" if licenses.fortiguard.connected else "down")
+        for feature in licenses.features:
+            if feature.is_licensed:
+                print("licensed:", feature.name, feature.version)
     except FortiOSAuthenticationError:
         print("Bad token — re-enter credentials")
     except FortiOSConnectionError:
@@ -74,12 +81,28 @@ client = FortiOSClient(..., device_online_threshold=600)
 
 - **Three typed monitor endpoints** (`get_system_status`, `get_resource_usage`,
   `get_detected_devices`) used by the Home Assistant integration.
+- `get_license_status()` — FortiCare registration, FortiGuard connectivity and
+  per-feature entitlements (antivirus, IPS, app-control, cloud services, …)
+  with a derived `is_licensed` flag (`licensed` or `free_license`).
+- `parse_fortios_version()` — dependency-free version parsing for range checks.
 - A generic `get(path)` for any other endpoint that returns the raw JSON envelope.
 - **No** config-write, CMDB, file upload, SSH fallback, or CLI helpers.
 - **No** session/cookie login flow — Bearer token only.
 
 This keeps the dependency tree small (runtime dep: `aiohttp` only) and passes HA integration
 quality review requirements.
+
+### Firmware compatibility
+
+Endpoint paths vary slightly across FortiOS versions. All models parse
+defensively: fields a firmware does not report default to `""`/`0` instead of
+raising, and endpoints missing on a version raise `FortiOSNotFoundError` so
+callers can disable just that feature.
+
+Note for the license endpoint (verified on v8.0.1): `/monitor/license` itself
+is a directory node that API tokens cannot read (403) — the data lives at
+`monitor/license/status`. On 7.4/7.6 this path is unverified; probe a device
+before relying on it there.
 
 ## Exception hierarchy
 

@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- `FortiOSClient.get_license_status()` — FortiCare registration, FortiGuard
+  connectivity, and per-feature entitlements from `monitor/license/status`,
+  parsed into `LicenseStatus` / `FortiGuardConnection` / `FortiCareRegistration`
+  / `LicenseFeature` (derived `is_licensed` covers `licensed` and
+  `free_license`; bundled licenses without `entitlement` tolerated).
+- `parse_fortios_version()` / `VersionInfo` — dependency-free parsing of
+  FortiOS version strings (`v8.0.1`, `v7.6.7 build3704 (M)`, …) with
+  tuple-comparable release info.
+- Defensive-parsing contract documented: missing firmware fields default
+  instead of raising; absent endpoints raise `FortiOSNotFoundError` so
+  callers can degrade per feature.
+
 ## [0.1.0] - 2026-08-26
 
 ### Added

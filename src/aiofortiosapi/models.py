@@ -190,3 +190,123 @@ class DetectedDevice:
             for e in results
             if isinstance(e, dict)
         ]
+
+
+# Statuses that mean a license feature is fully functional.  FortiOS also
+# reports e.g. "registered" (FortiCare), "cloud_na", or omits the field for
+# non-entitlement entries — those are not licensed features.
+_LICENSED_STATUSES = frozenset({"licensed", "free_license"})
+
+
+@dataclass(frozen=True, slots=True)
+class LicenseFeature:
+    """One license entitlement entry from monitor/license/status.
+
+    Covers all entry archetypes (downloaded_fds_object, live_fortiguard_service,
+    live_cloud_service, platform quotas, …) with tolerant optional fields:
+    anything the entry does not carry defaults to ""/0 instead of raising.
+    """
+
+    name: str  # envelope key, e.g. "ips"
+    kind: str  # the entry "type", e.g. "downloaded_fds_object"
+    status: str  # "licensed", "no_license", "free_license", "" when absent
+    is_licensed: bool  # derived: status in {"licensed", "free_license"}
+    entitlement: str  # e.g. "NIDS"; bundled licenses omit this
+    version: str  # signature/database version, e.g. "6.00741"
+    last_update: int  # unix timestamp; 0 when absent
+    used: int  # quota usage (vdom, sms); 0 otherwise
+    max: int  # quota limit (vdom, sms); 0 otherwise
+
+    @classmethod
+    def _from_entry(cls, name: str, entry: dict[str, Any]) -> LicenseFeature:
+        status = _as_str(entry.get("status"))
+        return cls(
+            name=name,
+            kind=_as_str(entry.get("type")),
+            status=status,
+            is_licensed=status in _LICENSED_STATUSES,
+            entitlement=_as_str(entry.get("entitlement")),
+            version=_as_str(entry.get("version")),
+            last_update=_to_int(entry.get("last_update")),
+            used=_to_int(entry.get("used")),
+            max=_to_int(entry.get("max")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class FortiGuardConnection:
+    """FortiGuard distribution service connectivity (from license/status)."""
+
+    connected: bool
+    connection_issue: bool
+    supported: bool
+    scheduled_updates_enabled: bool
+    last_connection_success: int  # unix timestamp; 0 when never
+    next_scheduled_update: int  # unix timestamp; 0 when unknown
+    server_address: str
+
+    @classmethod
+    def from_api(cls, entry: Any) -> FortiGuardConnection:
+        if not isinstance(entry, dict):
+            entry = {}
+        return cls(
+            connected=bool(entry.get("connected", False)),
+            connection_issue=bool(entry.get("connection_issue", False)),
+            supported=bool(entry.get("supported", False)),
+            scheduled_updates_enabled=bool(entry.get("scheduled_updates_enabled", False)),
+            last_connection_success=_to_int(entry.get("last_connection_success")),
+            next_scheduled_update=_to_int(entry.get("next_scheduled_update")),
+            server_address=_as_str(entry.get("server_address")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class FortiCareRegistration:
+    """FortiCare registration state (from license/status)."""
+
+    status: str  # e.g. "registered"
+    registration_status: str  # same value via a second field on some firmware
+    account: str  # registered account email
+    company: str
+
+    @classmethod
+    def from_api(cls, entry: Any) -> FortiCareRegistration:
+        if not isinstance(entry, dict):
+            entry = {}
+        return cls(
+            status=_as_str(entry.get("status")),
+            registration_status=_as_str(entry.get("registration_status")),
+            account=_as_str(entry.get("account")),
+            company=_as_str(entry.get("company")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class LicenseStatus:
+    """Parsed response from monitor/license/status.
+
+    ``fortiguard`` and ``forticare`` get dedicated models because they are
+    cloud-service entries rather than feature entitlements.  Every other
+    envelope key becomes a :class:`LicenseFeature`, sorted by name for
+    deterministic ordering.
+    """
+
+    fortiguard: FortiGuardConnection
+    forticare: FortiCareRegistration
+    features: list[LicenseFeature]
+
+    @classmethod
+    def from_api(cls, raw: dict[str, Any]) -> LicenseStatus:
+        results: Any = raw.get("results")
+        if not isinstance(results, dict):
+            results = {}
+        features = [
+            LicenseFeature._from_entry(str(name), entry)
+            for name, entry in sorted(results.items())
+            if name not in ("fortiguard", "forticare") and isinstance(entry, dict)
+        ]
+        return cls(
+            fortiguard=FortiGuardConnection.from_api(results.get("fortiguard")),
+            forticare=FortiCareRegistration.from_api(results.get("forticare")),
+            features=features,
+        )
