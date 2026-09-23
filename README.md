@@ -49,6 +49,18 @@ async def main() -> None:
         firmware = await client.get_firmware_status()
         print("running:", firmware.current.version)
         print("update available:", firmware.update_available)
+
+        for check in await client.get_wan_status():
+            for member in check.members:
+                print(
+                    check.name, member.interface, member.status,
+                    f"{member.latency_ms:.0f}ms", f"loss {member.packet_loss_percent}%",
+                    "SLA ok" if member.sla_met else "SLA violated",
+                )
+
+        for iface in await client.get_interfaces():
+            if iface.link:
+                print(iface.name, iface.ip, f"{iface.speed_mbps:.0f} Mbps")
     except FortiOSAuthenticationError:
         print("Bad token — re-enter credentials")
     except FortiOSConnectionError:
@@ -90,6 +102,11 @@ client = FortiOSClient(..., device_online_threshold=600)
   with a derived `is_licensed` flag (`licensed` or `free_license`).
 - `get_firmware_status()` — running firmware image plus the FortiGuard image
   catalog, with a derived `update_available` flag.
+- `get_wan_status()` — SD-WAN health-check results per check and member
+  interface: latency, jitter, packet loss, bandwidth counters, and a derived
+  `sla_met` flag that can legitimately diverge from the link status.
+- `get_interfaces()` — per-interface link state, addressing and traffic
+  counters.
 - `parse_fortios_version()` — dependency-free version parsing for range checks.
 - A generic `get(path)` for any other endpoint that returns the raw JSON envelope.
 - **No** config-write, CMDB, file upload, SSH fallback, or CLI helpers.

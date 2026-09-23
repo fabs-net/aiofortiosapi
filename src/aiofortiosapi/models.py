@@ -438,3 +438,127 @@ class FirmwareStatus:
         ]
         update_available = any(image.release > current.release for image in available)
         return cls(current=current, available=available, update_available=update_available)
+
+
+@dataclass(frozen=True, slots=True)
+class SdwanHealthCheckMember:
+    """One member-interface result within an SD-WAN health check.
+
+    ``status`` is the API-reported link state for this check; ``sla_met`` is
+    derived from ``sla_targets_met`` (non-empty list means at least one SLA
+    target is met).  The two can legitimately diverge: a member can be
+    "up" while violating its SLA (e.g. high latency or packet loss).
+    """
+
+    interface: str  # member interface name, e.g. "wan1"
+    status: str  # "up" | "down"
+    sla_met: bool  # derived: non-empty sla_targets_met list
+    latency_ms: float
+    jitter_ms: float
+    packet_loss_percent: float
+    packets_sent: int
+    packets_received: int
+    tx_bandwidth_kbps: int
+    rx_bandwidth_kbps: int
+    state_changed: int  # unix timestamp of last state change; 0 when absent
+
+    @classmethod
+    def _from_entry(cls, interface: str, entry: dict[str, Any]) -> SdwanHealthCheckMember:
+        targets: Any = entry.get("sla_targets_met")
+        return cls(
+            interface=interface,
+            status=_as_str(entry.get("status")),
+            sla_met=bool(targets) if isinstance(targets, list) else False,
+            latency_ms=_to_float(entry.get("latency")),
+            jitter_ms=_to_float(entry.get("jitter")),
+            packet_loss_percent=_to_float(entry.get("packet_loss")),
+            packets_sent=_to_int(entry.get("packet_sent")),
+            packets_received=_to_int(entry.get("packet_received")),
+            tx_bandwidth_kbps=_to_int(entry.get("tx_bandwidth")),
+            rx_bandwidth_kbps=_to_int(entry.get("rx_bandwidth")),
+            state_changed=_to_int(entry.get("state_changed")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class SdwanHealthCheck:
+    """One named SD-WAN health check and its per-member results.
+
+    Parsed from monitor/virtual-wan/health-check, whose envelope maps
+    check name → member interface → metrics.  Checks are sorted by name.
+    """
+
+    name: str  # e.g. "Default_DNS"
+    members: list[SdwanHealthCheckMember]
+
+    @classmethod
+    def list_from_api(cls, raw: dict[str, Any]) -> list[SdwanHealthCheck]:
+        """Parse the health-check envelope (check name → interface → metrics)."""
+        results: Any = raw.get("results")
+        if not isinstance(results, dict):
+            results = {}
+        checks = [
+            cls(
+                name=str(check_name),
+                members=[
+                    SdwanHealthCheckMember._from_entry(str(interface), member)
+                    for interface, member in sorted(check_entry.items())
+                    if isinstance(member, dict)
+                ],
+            )
+            for check_name, check_entry in sorted(results.items())
+            if isinstance(check_entry, dict)
+        ]
+        return checks
+
+
+@dataclass(frozen=True, slots=True)
+class InterfaceStatus:
+    """Link state, addressing and traffic counters for one interface.
+
+    Parsed from monitor/system/interface, whose envelope maps interface
+    name → status.  Interfaces are sorted by name.  Unconfigured ports
+    report ip "0.0.0.0", mask 0 and speed 0.0.
+    """
+
+    name: str  # e.g. "wan1"
+    alias: str  # configured alias; "" when unset
+    ip: str  # primary IPv4; "0.0.0.0" when unconfigured
+    prefix_len: int  # e.g. 24; 0 when unconfigured
+    link: bool
+    speed_mbps: float  # negotiated speed; 0.0 when down
+    duplex: int  # raw API enum (1 = full)
+    mac: str
+    tx_bytes: int
+    rx_bytes: int
+    tx_packets: int
+    rx_packets: int
+    tx_errors: int
+    rx_errors: int
+
+    @classmethod
+    def list_from_api(cls, raw: dict[str, Any]) -> list[InterfaceStatus]:
+        """Parse the interface envelope (interface name → status)."""
+        results: Any = raw.get("results")
+        if not isinstance(results, dict):
+            results = {}
+        return [
+            cls(
+                name=_as_str(entry.get("name")) or str(ifname),
+                alias=_as_str(entry.get("alias")),
+                ip=_as_str(entry.get("ip")),
+                prefix_len=_to_int(entry.get("mask")),
+                link=bool(entry.get("link", False)),
+                speed_mbps=_to_float(entry.get("speed")),
+                duplex=_to_int(entry.get("duplex")),
+                mac=_as_str(entry.get("mac")),
+                tx_bytes=_to_int(entry.get("tx_bytes")),
+                rx_bytes=_to_int(entry.get("rx_bytes")),
+                tx_packets=_to_int(entry.get("tx_packets")),
+                rx_packets=_to_int(entry.get("rx_packets")),
+                tx_errors=_to_int(entry.get("tx_errors")),
+                rx_errors=_to_int(entry.get("rx_errors")),
+            )
+            for ifname, entry in sorted(results.items())
+            if isinstance(entry, dict)
+        ]

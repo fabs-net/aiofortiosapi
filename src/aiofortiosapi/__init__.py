@@ -16,9 +16,12 @@ from .models import (
     FortiCareRegistration,
     FortiCareSupport,
     FortiGuardConnection,
+    InterfaceStatus,
     LicenseFeature,
     LicenseStatus,
     ResourceUsage,
+    SdwanHealthCheck,
+    SdwanHealthCheckMember,
     SystemStatus,
 )
 from .versions import VersionInfo, parse_fortios_version
@@ -44,6 +47,9 @@ __all__ = [
     "FortiCareSupport",
     "FirmwareImage",
     "FirmwareStatus",
+    "SdwanHealthCheck",
+    "SdwanHealthCheckMember",
+    "InterfaceStatus",
     # versions
     "VersionInfo",
     "parse_fortios_version",

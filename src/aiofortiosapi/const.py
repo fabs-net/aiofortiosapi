@@ -24,6 +24,14 @@ EP_LICENSE_STATUS = f"{API_BASE}/monitor/license/status"
 # Long-standing monitor endpoint (present since FortiOS 6.x).
 EP_FIRMWARE = f"{API_BASE}/monitor/system/firmware"
 
+# SD-WAN health-check results (per check, per member interface). Requires an
+# SD-WAN configuration; without one the envelope reports empty results.
+# Present since FortiOS 6.4-era.
+EP_SDWAN_HEALTH_CHECK = f"{API_BASE}/monitor/virtual-wan/health-check"
+
+# Per-interface link state, addressing and traffic counters (long-standing).
+EP_INTERFACES = f"{API_BASE}/monitor/system/interface"
+
 # Future endpoints (add intentionally, verify paths per target version):
 #   monitor/vpn/ipsec          — IPsec/VPN tunnel state
 #   monitor/system/interface   — per-interface traffic stats

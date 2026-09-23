@@ -21,6 +21,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   catalog from `monitor/system/firmware`, parsed into `FirmwareStatus` /
   `FirmwareImage` with a derived `update_available` flag (any offered image
   newer than the running release).
+- `FortiOSClient.get_wan_status()` — SD-WAN health-check results from
+  `monitor/virtual-wan/health-check`, parsed into `SdwanHealthCheck` /
+  `SdwanHealthCheckMember` with a derived `sla_met` flag (a member can be
+  "up" while violating its SLA — both states are exposed).
+- `FortiOSClient.get_interfaces()` — per-interface link state, addressing
+  and traffic counters from `monitor/system/interface`, parsed into
+  `InterfaceStatus` (dict envelope, sorted by name).
 - `parse_fortios_version()` / `VersionInfo` — dependency-free parsing of
   FortiOS version strings (`v8.0.1`, `v7.6.7 build3704 (M)`, …) with
   tuple-comparable release info.

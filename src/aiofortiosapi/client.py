@@ -16,8 +16,10 @@ from .const import (
     DEFAULT_TIMEOUT,
     EP_DETECTED_DEVICES,
     EP_FIRMWARE,
+    EP_INTERFACES,
     EP_LICENSE_STATUS,
     EP_RESOURCE_USAGE,
+    EP_SDWAN_HEALTH_CHECK,
     EP_SYSTEM_STATUS,
 )
 from .exceptions import (
@@ -29,8 +31,10 @@ from .exceptions import (
 from .models import (
     DetectedDevice,
     FirmwareStatus,
+    InterfaceStatus,
     LicenseStatus,
     ResourceUsage,
+    SdwanHealthCheck,
     SystemStatus,
 )
 
@@ -217,6 +221,21 @@ class FortiOSClient:
         """
         raw = await self._request("GET", EP_FIRMWARE)
         return FirmwareStatus.from_api(raw)
+
+    async def get_wan_status(self) -> list[SdwanHealthCheck]:
+        """Return SD-WAN health-check results per check and member interface.
+
+        Each check carries per-member latency, jitter, packet loss, SLA
+        state and bandwidth counters.  Boxes without an SD-WAN configuration
+        return an empty list.
+        """
+        raw = await self._request("GET", EP_SDWAN_HEALTH_CHECK)
+        return SdwanHealthCheck.list_from_api(raw)
+
+    async def get_interfaces(self) -> list[InterfaceStatus]:
+        """Return link state and traffic counters for every interface."""
+        raw = await self._request("GET", EP_INTERFACES)
+        return InterfaceStatus.list_from_api(raw)
 
     async def async_validate(self) -> SystemStatus:
         """Validate credentials cheaply by calling get_system_status.
