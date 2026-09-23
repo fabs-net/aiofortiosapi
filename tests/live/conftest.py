@@ -65,7 +65,6 @@ async def live_client() -> AsyncIterator[FortiOSClient]:
             token=FGT_TOKEN,
             session=session,
             port=_env_port(),
-            verify_ssl=os.environ.get("FGT_VERIFY_SSL", "0")
-            in ("1", "true", "yes"),
+            verify_ssl=os.environ.get("FGT_VERIFY_SSL", "0") in ("1", "true", "yes"),
             vdom=os.environ.get("FGT_VDOM") or None,
         )
