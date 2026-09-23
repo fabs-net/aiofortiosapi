@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .const import DEFAULT_ONLINE_THRESHOLD
+from .versions import parse_fortios_version
 
 
 def _first(lst: Any, key: str, default: Any = None) -> Any:
@@ -353,3 +354,87 @@ class LicenseStatus:
             forticare=FortiCareRegistration.from_api(results.get("forticare")),
             features=features,
         )
+
+
+@dataclass(frozen=True, slots=True)
+class FirmwareImage:
+    """One firmware image entry from monitor/system/firmware.
+
+    ``current`` carries ``source="current"`` and a ``platform-id``;
+    ``available`` images come from FortiGuard with opaque image ids.
+    All fields default safely when a firmware omits them.
+    """
+
+    name: str  # e.g. "FortiOS"
+    image_id: str  # API "id"; "current" for the running image
+    version: str  # e.g. "v8.0.1"
+    major: int
+    minor: int
+    patch: int
+    build: int
+    release_type: str  # API "release-type", e.g. "GA"
+    maturity: str  # "F" (feature) or "M" (maturity)
+    source: str  # "current" or "fortiguard"
+    notes_url: str  # release notes URL
+
+    @property
+    def release(self) -> tuple[int, int, int]:
+        """Return the (major, minor, patch) tuple for comparisons."""
+        return (self.major, self.minor, self.patch)
+
+    @classmethod
+    def from_api(cls, entry: Any) -> FirmwareImage:
+        if not isinstance(entry, dict):
+            entry = {}
+        major = _to_int(entry.get("major"))
+        minor = _to_int(entry.get("minor"))
+        patch = _to_int(entry.get("patch"))
+        version = _as_str(entry.get("version"))
+        if not (major or minor or patch):
+            # Firmware omitted the numeric fields: derive them from the
+            # version string ("v8.0.1" -> 8, 0, 1).
+            parsed = parse_fortios_version(version)
+            if parsed is not None:
+                major, minor, patch = parsed.major, parsed.minor, parsed.patch
+        return cls(
+            name=_as_str(entry.get("name")),
+            image_id=_as_str(entry.get("id")),
+            version=version,
+            major=major,
+            minor=minor,
+            patch=patch,
+            build=_to_int(entry.get("build")),
+            release_type=_as_str(entry.get("release-type")),
+            maturity=_as_str(entry.get("maturity")),
+            source=_as_str(entry.get("source")),
+            notes_url=_as_str(entry.get("notes")),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class FirmwareStatus:
+    """Parsed response from monitor/system/firmware.
+
+    ``update_available`` compares release tuples and is True when any
+    available image is newer than the running one.  Maturity and release
+    type are not filtered — a maintenance build offered by FortiGuard
+    counts as an update.
+    """
+
+    current: FirmwareImage
+    available: list[FirmwareImage]
+    update_available: bool
+
+    @classmethod
+    def from_api(cls, raw: dict[str, Any]) -> FirmwareStatus:
+        results: Any = raw.get("results")
+        if not isinstance(results, dict):
+            results = {}
+        current = FirmwareImage.from_api(results.get("current"))
+        available = [
+            FirmwareImage.from_api(entry)
+            for entry in (results.get("available") or [])
+            if isinstance(entry, dict)
+        ]
+        update_available = any(image.release > current.release for image in available)
+        return cls(current=current, available=available, update_available=update_available)

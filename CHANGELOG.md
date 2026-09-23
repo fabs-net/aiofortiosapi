@@ -17,6 +17,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `LicenseFeature.license_kind` — derived entitlement kind ("paid",
   "bundled", "free", "none") distinguishing paid UTM licenses from bundled
   infrastructure databases and free cloud tiers.
+- `FortiOSClient.get_firmware_status()` — running image and FortiGuard image
+  catalog from `monitor/system/firmware`, parsed into `FirmwareStatus` /
+  `FirmwareImage` with a derived `update_available` flag (any offered image
+  newer than the running release).
 - `parse_fortios_version()` / `VersionInfo` — dependency-free parsing of
   FortiOS version strings (`v8.0.1`, `v7.6.7 build3704 (M)`, …) with
   tuple-comparable release info.

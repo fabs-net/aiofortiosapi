@@ -11,6 +11,8 @@ from .exceptions import (
 )
 from .models import (
     DetectedDevice,
+    FirmwareImage,
+    FirmwareStatus,
     FortiCareRegistration,
     FortiCareSupport,
     FortiGuardConnection,
@@ -40,6 +42,8 @@ __all__ = [
     "FortiGuardConnection",
     "FortiCareRegistration",
     "FortiCareSupport",
+    "FirmwareImage",
+    "FirmwareStatus",
     # versions
     "VersionInfo",
     "parse_fortios_version",

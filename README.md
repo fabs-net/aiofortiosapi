@@ -45,6 +45,10 @@ async def main() -> None:
         for feature in licenses.features:
             if feature.is_licensed:
                 print("licensed:", feature.name, feature.version)
+
+        firmware = await client.get_firmware_status()
+        print("running:", firmware.current.version)
+        print("update available:", firmware.update_available)
     except FortiOSAuthenticationError:
         print("Bad token — re-enter credentials")
     except FortiOSConnectionError:
@@ -84,6 +88,8 @@ client = FortiOSClient(..., device_online_threshold=600)
 - `get_license_status()` — FortiCare registration, FortiGuard connectivity and
   per-feature entitlements (antivirus, IPS, app-control, cloud services, …)
   with a derived `is_licensed` flag (`licensed` or `free_license`).
+- `get_firmware_status()` — running firmware image plus the FortiGuard image
+  catalog, with a derived `update_available` flag.
 - `parse_fortios_version()` — dependency-free version parsing for range checks.
 - A generic `get(path)` for any other endpoint that returns the raw JSON envelope.
 - **No** config-write, CMDB, file upload, SSH fallback, or CLI helpers.

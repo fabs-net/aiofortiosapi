@@ -21,6 +21,9 @@ EP_DETECTED_DEVICES = f"{API_BASE}/monitor/user/device/query"
 # dev-scripts/version_check.py before relying on it there.
 EP_LICENSE_STATUS = f"{API_BASE}/monitor/license/status"
 
+# Long-standing monitor endpoint (present since FortiOS 6.x).
+EP_FIRMWARE = f"{API_BASE}/monitor/system/firmware"
+
 # Future endpoints (add intentionally, verify paths per target version):
 #   monitor/vpn/ipsec          — IPsec/VPN tunnel state
 #   monitor/system/interface   — per-interface traffic stats

@@ -15,6 +15,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_TIMEOUT,
     EP_DETECTED_DEVICES,
+    EP_FIRMWARE,
     EP_LICENSE_STATUS,
     EP_RESOURCE_USAGE,
     EP_SYSTEM_STATUS,
@@ -27,6 +28,7 @@ from .exceptions import (
 )
 from .models import (
     DetectedDevice,
+    FirmwareStatus,
     LicenseStatus,
     ResourceUsage,
     SystemStatus,
@@ -205,6 +207,16 @@ class FortiOSClient:
         """
         raw = await self._request("GET", EP_LICENSE_STATUS)
         return LicenseStatus.from_api(raw)
+
+    async def get_firmware_status(self) -> FirmwareStatus:
+        """Return the running firmware image and the FortiGuard image catalog.
+
+        ``current`` describes the running image; ``available`` lists all
+        images FortiGuard offers for this platform; ``update_available`` is
+        True when any offered image is newer than the running release.
+        """
+        raw = await self._request("GET", EP_FIRMWARE)
+        return FirmwareStatus.from_api(raw)
 
     async def async_validate(self) -> SystemStatus:
         """Validate credentials cheaply by calling get_system_status.
